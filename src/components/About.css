@@ -1,0 +1,23 @@
+/* src/components/About.css */
+.feature-box {
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.feature-box.animate-fadeInUp {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feature-box[data-index="0"] {
+  transition-delay: 0.2s;
+}
+
+.feature-box[data-index="1"] {
+  transition-delay: 0.4s;
+}
+
+.feature-box[data-index="2"] {
+  transition-delay: 0.6s;
+}
