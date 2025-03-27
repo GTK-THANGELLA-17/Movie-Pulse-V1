@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -13,18 +12,26 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connect to MongoDB with retry logic
+let retryAttempts = 0;
+const maxRetryAttempts = 5; // Maximum retry attempts
+
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     });
     console.log('MongoDB connected successfully');
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
-    // Retry connection after delay
-    console.log('Retrying connection in 5 seconds...');
-    setTimeout(connectDB, 5000);
+    retryAttempts++;
+    if (retryAttempts < maxRetryAttempts) {
+      console.log('Retrying connection in 5 seconds...');
+      setTimeout(connectDB, 5000);
+    } else {
+      console.error('Max retry attempts reached, exiting...');
+      process.exit(1); // Exit after too many failed attempts
+    }
   }
 };
 
@@ -34,23 +41,23 @@ connectDB();
 const opinionsRoutes = require('./routes/opinions');
 app.use('/api/opinions', opinionsRoutes);
 
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'MoviePulse API is running',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(), // ISO format for better readability
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
     error: true,
     message: 'An unexpected error occurred',
-    details: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
-
-// Health check route
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    message: 'MoviePulse API is running',
-    environment: process.env.NODE_ENV || 'development',
-    timestamp: new Date()
+    details: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
 
