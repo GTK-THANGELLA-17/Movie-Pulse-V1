@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 10000; // Use Render's assigned port
 
 // Middleware
 app.use(cors());
@@ -17,7 +17,7 @@ const maxRetryAttempts = 5;
 
 const connectDB = async () => {
   try {
-    console.log("MongoDB URI:", process.env.MONGODB_URI); // Debug log
+    console.log("MongoDB URI:", process.env.MONGODB_URI); // Debugging connection
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -39,15 +39,14 @@ const connectDB = async () => {
 connectDB();
 
 // Routes
-const opinionsRoutes = require('./routes/opinions');
+const opinionsRoutes = require('./routes/opinions'); // Ensure this file exists
 app.use('/api/opinions', opinionsRoutes);
 
-// Health Check Route
-app.get('/health', (req, res) => {
+// Health Check Route for Render
+app.get('/healthz', (req, res) => {
   res.status(200).json({
     status: 'OK',
-    message: '🎉 MoviePulse API is running',
-    environment: process.env.NODE_ENV || 'development',
+    message: '✅ Health Check Passed',
     timestamp: new Date().toISOString(),
   });
 });
