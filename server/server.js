@@ -43,7 +43,7 @@ const opinionsRoutes = require('./routes/opinions'); // Ensure this file exists
 app.use('/api/opinions', opinionsRoutes);
 
 // Health Check Route for Render
-app.get('/healthz', (req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     message: '✅ Health Check Passed',
